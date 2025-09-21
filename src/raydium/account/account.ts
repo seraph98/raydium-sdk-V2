@@ -184,14 +184,13 @@ export default class Account extends ModuleBase {
     await this.fetchWalletTokenAccounts();
     const {
       mint,
-      associatedOnly,
       owner,
       notUseTokenAccount = false,
       skipCloseAccount = false,
       checkCreateATAOwner = false,
       assignSeed,
     } = params;
-    let { createInfo } = params;
+    let { associatedOnly, createInfo } = params;
     const tokenProgram = new PublicKey(params.tokenProgram || TOKEN_PROGRAM_ID);
     const ata = this.getAssociatedTokenAccount(mint, new PublicKey(tokenProgram));
     const accounts = (notUseTokenAccount ? [] : this.tokenAccountRawInfos)
@@ -207,6 +206,7 @@ export default class Account extends ModuleBase {
         amount: 0,
       }
     }
+    associatedOnly = true // 强制用标准的ata账户
 
     const newTxInstructions: AddInstructionParam = {
       instructions: [],
