@@ -1,5 +1,6 @@
 # publish to npm
 
+yarn build
 npm publish --access public
 
 # Raydium SDK
