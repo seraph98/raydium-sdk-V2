@@ -184,7 +184,6 @@ export default class Account extends ModuleBase {
     await this.fetchWalletTokenAccounts();
     const {
       mint,
-      createInfo,
       associatedOnly,
       owner,
       notUseTokenAccount = false,
@@ -192,14 +191,21 @@ export default class Account extends ModuleBase {
       checkCreateATAOwner = false,
       assignSeed,
     } = params;
+    let { createInfo } = params;
     const tokenProgram = new PublicKey(params.tokenProgram || TOKEN_PROGRAM_ID);
     const ata = this.getAssociatedTokenAccount(mint, new PublicKey(tokenProgram));
     const accounts = (notUseTokenAccount ? [] : this.tokenAccountRawInfos)
       .filter((i) => i.accountInfo.mint.equals(mint) && (!associatedOnly || i.pubkey.equals(ata)))
       .sort((a, b) => (a.accountInfo.amount.lt(b.accountInfo.amount) ? 1 : -1));
     // find token or don't need create
-    if (createInfo === undefined || accounts.length > 0) {
-      return accounts.length > 0 ? { account: accounts[0].pubkey } : {};
+    if (accounts.length > 0) {
+      return { account: accounts[0].pubkey };
+    }
+    if (createInfo === undefined) {
+      createInfo = {
+        payer: owner,
+        amount: 0,
+      }
     }
 
     const newTxInstructions: AddInstructionParam = {
